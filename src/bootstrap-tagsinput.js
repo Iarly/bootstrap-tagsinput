@@ -331,7 +331,21 @@
             typeaheadDatasets = typeaheadjs;
           }
 
-          self.$input.typeahead(typeaheadConfig, typeaheadDatasets).on('typeahead:selected', $.proxy(function (obj, datum) {
+          /*
+           * Handle keyup and autocomplete events to enable first selection on press <enter>
+           */
+          self.$input.typeahead(typeaheadConfig, typeaheadDatasets).on('keyup', function (e) {
+              var keyCode = e.keyCode || e.which;
+              if (keyCode !== 40 && keyCode !== 38) {
+                  $('.tt-suggestion').first().addClass('tt-cursor');
+              }
+          }).on('typeahead:autocomplete', $.proxy(function (obj, datum) {
+              if (typeaheadjs.valueKey)
+                  self.add(datum[typeaheadjs.valueKey]);
+              else
+                  self.add(datum);
+              self.$input.typeahead('val', '');
+          }, self)).on('typeahead:selected', $.proxy(function (obj, datum) {
             if (typeaheadDatasets.valueKey)
               self.add(datum[typeaheadDatasets.valueKey]);
             else
